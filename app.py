@@ -2,10 +2,9 @@ import streamlit as st
 from openai import OpenAI
 import os
 
-# Set your OpenAI API key securely
-client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])  # or os.getenv("OPENAI_API_KEY")
+# Use your Streamlit secret or environment variable for API key
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY", default="your-api-key-here"))
 
-# Streamlit UI
 st.set_page_config(page_title="Story Engine", layout="centered")
 
 st.title("📽️ Story Engine – Generate a Creative Brief")
@@ -52,26 +51,23 @@ with st.form("story_form"):
     ])
     extra_notes = st.text_area("Anything else you’d like to share that we should consider for the video?")
 
-    # Optional toggle for creative AI twist
     creative_mode = st.toggle("Let AI creatively reinterpret this story for originality?", value=True)
 
     submitted = st.form_submit_button("🚀 Generate Story Brief")
 
 if submitted:
-    # Construct user prompt
     user_prompt = f"""
 You are a creative strategist and story expert for social impact. Based on the inputs below, create a compelling story brief for a short video. 
-Make it emotionally engaging and suitable for production teams, but don't use corporate clichés. 
-Respond in a way that inspires originality and emotional connection.
+Make it emotionally engaging and suitable for production teams, but avoid generic language.
 
 Organization: {org_name}
-Country / Region: {country}
+Country: {country}
 Focus Areas: {", ".join(focus_areas)}
-Primary Beneficiaries: {", ".join(beneficiaries)}
+Beneficiaries: {", ".join(beneficiaries)}
 
 Project Name: {project_name}
-Project Goal: {project_goal}
-Key Activities: {key_activities}
+Goal: {project_goal}
+Activities: {key_activities}
 Duration: {project_duration}
 Funder/Partner: {funder_info}
 
@@ -81,28 +77,28 @@ People Impacted: {people_impacted}
 Testimonial: {testimonial}
 
 Desired Emotion: {emotion}
-Preferred Video Style: {video_style}
+Video Style: {video_style}
 Video Length: {video_length}
-Extra Notes: {extra_notes}
+Notes: {extra_notes}
 """
 
     if creative_mode:
-        user_prompt += "\n\nNegative Prompts: Avoid buzzwords like 'empower', 'impact', or 'solutions'. Think fresh, human, cinematic. No generic messaging."
+        user_prompt += "\n\nBe creative. Avoid words like 'empower', 'impact', or 'solution'. Avoid clichés and buzzwords. Think fresh and cinematic."
 
-    # Call OpenAI API
-    with st.spinner("Generating your story brief..."):
+    with st.spinner("Generating story brief..."):
         try:
             response = client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=[
-                    {"role": "system", "content": "You are a storytelling and creative strategy assistant."},
+                    {"role": "system", "content": "You are a brilliant creative strategist and storyteller."},
                     {"role": "user", "content": user_prompt}
                 ],
-                temperature=0.8
+                temperature=0.9,
+                max_tokens=1000
             )
             story_brief = response.choices[0].message.content
             st.success("✅ Story brief generated!")
             st.markdown("### ✍️ Story Brief")
             st.write(story_brief)
         except Exception as e:
-            st.error(f"❌ Error: {e}")
+            st.error(f"❌ An error occurred: {e}")
