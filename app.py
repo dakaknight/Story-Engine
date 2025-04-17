@@ -122,12 +122,12 @@ Based on this, write a compelling and original story brief we can use to guide o
 """.strip()
 
             try:
-                response = model.generate_content(prompt)
+                chat = model.start_chat()
+                response = chat.send_message(prompt)
                 st.success("✅ Story brief generated!")
                 st.markdown("### 📝 Your Story Brief")
                 st.write(response.text)
 
-                # Download option
                 st.download_button("📄 Download Brief", response.text, file_name="story_brief.txt")
             except Exception as e:
                 st.error(f"❌ An error occurred: {e}")
